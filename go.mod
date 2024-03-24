@@ -1,4 +1,4 @@
-module MyGoTools
+module github.com/PlayerR9/MyGoTools
 
 go 1.22.1
 
