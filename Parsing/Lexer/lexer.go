@@ -53,12 +53,12 @@ func NewLexer(grammar *gr.Grammar) (*Lexer, error) {
 			Wrap(errors.New("grammar cannot be nil"))
 	}
 
-	lex := Lexer{
+	lex := &Lexer{
 		grammar: grammar,
 		toSkip:  grammar.LhsToSkip,
 	}
 
-	return &lex, nil
+	return lex, nil
 }
 
 func (l *Lexer) addFirstLeaves(b []byte) error {
