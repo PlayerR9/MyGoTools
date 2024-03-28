@@ -2,6 +2,7 @@ package Lexer
 
 import (
 	"errors"
+	"fmt"
 	"slices"
 
 	gr "github.com/PlayerR9/MyGoLib/Utility/Grammar"
@@ -10,51 +11,6 @@ import (
 	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
 	slext "github.com/PlayerR9/MyGoLib/Utility/SliceExt"
 )
-
-// TokenStatus represents the status of a token
-type TokenStatus int
-
-const (
-	// TkComplete represents a token that has been fully lexed
-	TkComplete TokenStatus = iota
-
-	// TkIncomplete represents a token that has not been fully lexed
-	TkIncomplete
-
-	// TkError represents a token that has an error
-	TkError
-)
-
-// String returns the string representation of a TokenStatus
-//
-// Returns:
-//
-//   - string: The string representation of the TokenStatus
-func (s TokenStatus) String() string {
-	return [...]string{
-		"complete",
-		"incomplete",
-		"error",
-	}[s]
-}
-
-// helperToken is a wrapper around a *LeafToken that adds a status field
-type helperToken struct {
-	// Status is the status of the token
-	Status TokenStatus
-
-	// Tok is the *LeafToken
-	Tok *gr.LeafToken
-}
-
-// SetStatus sets the status of the token
-//
-// Parameters:
-//
-//   - status: The status to set
-func (ht *helperToken) SetStatus(status TokenStatus) {
-	ht.Status = status
-}
 
 // Lexer is a lexer that uses a grammar to tokenize a string
 type Lexer struct {
@@ -104,18 +60,13 @@ func NewLexer(grammar *gr.Grammar) (*Lexer, error) {
 // Returns:
 //
 //   - error: An error if no matches are found at index 0
-func (l *Lexer) addFirstLeaves(b []byte) error {
-	matches := l.grammar.Match(0, b)
-	if len(matches) == 0 {
-		return errors.New("no matches found at index 0")
-	}
-
+func (l *Lexer) addFirstLeaves(matches []gr.MatchedResult) {
 	// Get the longest match
 	matches = getLongestMatches(matches)
 	for _, match := range matches {
 		leafToken, ok := match.Matched.(*gr.LeafToken)
 		if !ok {
-			return errors.New("this should not happen: match.Matched is not a *LeafToken")
+			panic("this should not happen: match.Matched is not a *LeafToken")
 		}
 
 		l.root.AddChild(&helperToken{
@@ -124,8 +75,6 @@ func (l *Lexer) addFirstLeaves(b []byte) error {
 		})
 		l.leaves = l.root.GetLeaves()
 	}
-
-	return nil
 }
 
 // processLeaf processes a leaf
@@ -168,26 +117,6 @@ func (l *Lexer) processLeaf(leaf *nd.Node[*helperToken], b []byte) {
 	leaf.Data.SetStatus(TkComplete)
 }
 
-// getLongestMatches returns the longest matches
-//
-// Parameters:
-//
-//   - matches: The matches to filter
-//
-// Returns:
-//
-//   - []MatchedResult: The longest matches
-func getLongestMatches(matches []gr.MatchedResult) []gr.MatchedResult {
-	return slext.FilterByPositiveWeight(matches, func(match gr.MatchedResult) (int, bool) {
-		leaf, ok := match.Matched.(*gr.LeafToken)
-		if !ok {
-			return 0, false
-		}
-
-		return len(leaf.Data), true
-	})
-}
-
 // Lex is the main function of the lexer
 //
 // Parameters:
@@ -207,9 +136,12 @@ func (l *Lexer) Lex(b []byte) error {
 		Tok:    gr.NewLeafToken("root", "", -1),
 	})
 
-	if err := l.addFirstLeaves(b); err != nil {
-		return err
+	matches := l.grammar.Match(0, b)
+	if len(matches) == 0 {
+		return errors.New("no matches found at index 0")
 	}
+
+	l.addFirstLeaves(matches)
 
 	l.root.Data.SetStatus(TkComplete)
 
@@ -270,35 +202,6 @@ func (l *Lexer) removeSkippedTokens(tokenBranches [][]*gr.LeafToken) [][]*gr.Lea
 	return tokenBranches
 }
 
-// completeBranchFilter is a filter function that returns true if all the tokens
-// in a branch are complete
-//
-// Parameters:
-//
-//   - tokens: The tokens to check
-//
-// Returns:
-//
-//   - bool: True if all the tokens are complete, false otherwise
-func completeBranchFilter(tokens []*helperToken) bool {
-	return !slices.ContainsFunc(tokens, func(token *helperToken) bool {
-		return token.Status != TkComplete
-	})
-}
-
-// emptyBranchFilter is a filter function that returns true if a branch is not empty
-//
-// Parameters:
-//
-//   - tokens: The tokens to check
-//
-// Returns:
-//
-//   - bool: True if the branch is not empty, false otherwise
-func emptyBranchFilter(tokens []*gr.LeafToken) bool {
-	return len(tokens) > 0
-}
-
 // GetTokens returns the tokens that have been lexed
 //
 // Returns:
@@ -311,12 +214,13 @@ func (l *Lexer) GetTokens() ([][]*gr.LeafToken, error) {
 	}
 
 	tokenBranches := l.root.SnakeTraversal()
-	tokenBranches = slext.SliceFilter(tokenBranches, completeBranchFilter)
+
+	branches, invalidTokIndex := filterInvalidBranches(tokenBranches)
 
 	// Convert the tokens to []*LeafToken
-	result := make([][]*gr.LeafToken, len(tokenBranches))
+	result := make([][]*gr.LeafToken, len(branches))
 
-	for i, branch := range tokenBranches {
+	for i, branch := range branches {
 		result[i] = make([]*gr.LeafToken, len(branch))
 
 		for j, token := range branch {
@@ -326,6 +230,10 @@ func (l *Lexer) GetTokens() ([][]*gr.LeafToken, error) {
 
 	result = l.removeSkippedTokens(result)
 	result = slext.SliceFilter(result, emptyBranchFilter)
+
+	if invalidTokIndex != -1 {
+		return result, fmt.Errorf("invalid token at index %d", invalidTokIndex)
+	}
 
 	return result, nil
 }
