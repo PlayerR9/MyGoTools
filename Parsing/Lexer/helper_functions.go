@@ -35,12 +35,12 @@ func getLongestMatches(matches []gr.MatchedResult) []gr.MatchedResult {
 // Returns:
 //
 //   - bool: True if the branch is not empty, false otherwise
-func emptyBranchFilter(tokens []*gr.LeafToken) bool {
+func emptyBranchFilter(tokens []gr.LeafToken) bool {
 	return len(tokens) > 0
 }
 
-func filterInvalidBranches(branches [][]*helperToken) ([][]*helperToken, int) {
-	branches, ok := slext.SFSeparateEarly(branches, func(h []*helperToken) bool {
+func filterInvalidBranches(branches [][]helperToken) ([][]helperToken, int) {
+	branches, ok := slext.SFSeparateEarly(branches, func(h []helperToken) bool {
 		return len(h) != 0 && h[len(h)-1].Status == TkComplete
 	})
 	if ok {
@@ -48,9 +48,9 @@ func filterInvalidBranches(branches [][]*helperToken) ([][]*helperToken, int) {
 	}
 
 	// Return the longest branch
-	branches = slext.FilterByPositiveWeight(branches, func(h []*helperToken) (int, bool) {
+	branches = slext.FilterByPositiveWeight(branches, func(h []helperToken) (int, bool) {
 		return len(h), true
 	})
 
-	return [][]*helperToken{branches[0]}, len(branches[0])
+	return [][]helperToken{branches[0]}, len(branches[0])
 }
