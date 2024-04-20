@@ -39,6 +39,16 @@ func emptyBranchFilter(tokens []gr.LeafToken) bool {
 	return len(tokens) > 0
 }
 
+// filterInvalidBranches filters out invalid branches.
+//
+// Parameters:
+//
+//   - branches: The branches to filter
+//
+// Returns:
+//
+//   - [][]helperToken: The filtered branches
+//   - int: The length of the longest branch
 func filterInvalidBranches(branches [][]helperToken) ([][]helperToken, int) {
 	branches, ok := slext.SFSeparateEarly(branches, func(h []helperToken) bool {
 		return len(h) != 0 && h[len(h)-1].Status == TkComplete

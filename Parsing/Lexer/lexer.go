@@ -39,8 +39,7 @@ type Lexer struct {
 //   - error: An error of type *ers.ErrInvalidParameter if the grammar is nil
 func NewLexer(grammar *gr.Grammar) (*Lexer, error) {
 	if grammar == nil {
-		return nil, ers.NewErrInvalidParameter("grammar").
-			Wrap(errors.New("grammar cannot be nil"))
+		return nil, ers.NewErrNilParameter("grammar")
 	}
 
 	lex := &Lexer{

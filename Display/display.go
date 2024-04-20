@@ -11,20 +11,46 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+// Display represents a display that can be used to draw to the screen.
 type Display struct {
+	// frameRate represents the frame rate of the display.
 	frameRate time.Duration
-	screen    tcell.Screen
 
+	// screen represents the screen that the display will draw to.
+	screen tcell.Screen
+
+	// width and height represent the width and height of the screen, respectively.
 	width, height int
-	majorTable    *DrawTable
 
+	// majorTable represents the major table that the display will draw.
+	majorTable *DrawTable
+
+	// closeSignal represents a signal that will be used to close the display.
 	closeSignal *rws.RWSafe[bool]
-	eventCh     chan tcell.Event
-	errCh       chan error
 
-	wg sync.WaitGroup // WaitGroup for goroutines
+	// eventCh represents the channel that will be used to send events to the display.
+	eventCh chan tcell.Event
+
+	// errCh represents the channel that will be used to send errors to the display.
+	errCh chan error
+
+	// wg represents the WaitGroup that will be used to wait for goroutines to finish.
+	wg sync.WaitGroup
 }
 
+// NewDisplay creates a new display with the given frame rate.
+//
+// If the frame rate is less than or equal to 0, an error of type *ers.ErrInvalidParameter
+// will be returned.
+//
+// Parameters:
+//
+//   - frameRate: The frame rate of the display.
+//
+// Returns:
+//
+//   - *Display: A pointer to the new display.
+//   - error: An error if the display could not be created.
 func NewDisplay(frameRate float64) (*Display, error) {
 	if frameRate <= 0 {
 		return nil, ers.NewErrInvalidParameter("frameRate").
@@ -51,7 +77,10 @@ func NewDisplay(frameRate float64) (*Display, error) {
 
 	d.width, d.height = d.screen.Size()
 
-	d.majorTable = NewDrawTable(d.width, d.height, tcell.StyleDefault) // FIXME: Use a default style
+	d.majorTable, err = NewDrawTable(d.width, d.height, tcell.StyleDefault) // FIXME: Use a default style
+	if err != nil {
+		return nil, err
+	}
 
 	d.closeSignal = rws.NewRWSafe(false)
 	d.eventCh = make(chan tcell.Event)
@@ -60,14 +89,25 @@ func NewDisplay(frameRate float64) (*Display, error) {
 	return d, nil
 }
 
+// GetErrChannel returns the error channel of the display.
+//
+// Returns:
+//
+//   - <-chan error: The error channel of the display.
 func (d *Display) GetErrChannel() <-chan error {
 	return d.errCh
 }
 
+// GetTable returns the table that the display will draw to.
+//
+// Returns:
+//
+//   - WriteOnlyDTer: The table that the display will draw to.
 func (d *Display) GetTable() WriteOnlyDTer {
 	return d.majorTable
 }
 
+// Close closes the display.
 func (d *Display) Close() {
 	d.closeSignal.Set(true)
 
@@ -92,6 +132,7 @@ func (d *Display) Close() {
 	d.closeSignal = nil
 }
 
+// Start starts the display.
 func (d *Display) Start() {
 	// Handle the events in a separate goroutine
 	go func() {
@@ -149,6 +190,7 @@ func (d *Display) Start() {
 	}()
 }
 
+// draw is a helper function that draws the major table to the screen.
 func (d *Display) draw() {
 	d.majorTable.mu.RLock()
 	defer d.majorTable.mu.RUnlock()
@@ -162,10 +204,12 @@ func (d *Display) draw() {
 	}
 }
 
+// Clear clears the display.
 func (d *Display) Clear() {
 	d.screen.Clear()
 }
 
+// Wait waits for the display to finish.
 func (d *Display) Wait() {
 	d.wg.Wait()
 }
