@@ -57,13 +57,11 @@ type Parser struct {
 //
 //   - *Parser: A pointer to the new parser.
 //   - error: An error if the parser could not be created.
-func NewParser(grammar *gr.Grammar) (*Parser, error) {
-	if grammar == nil {
-		return nil, ers.NewErrNilParameter("grammar")
-	}
+func NewParser(grammar *gr.Grammar) (Parser, error) {
+	p := Parser{productions: make([]gr.Production, 0)}
 
-	p := &Parser{
-		productions: make([]gr.Production, 0),
+	if grammar == nil {
+		return p, ers.NewErrNilParameter("grammar")
 	}
 
 	for _, production := range grammar.Productions {
@@ -76,7 +74,7 @@ func NewParser(grammar *gr.Grammar) (*Parser, error) {
 	}
 
 	if len(p.productions) == 0 {
-		return nil, ers.NewErrInvalidParameter("grammar").
+		return p, ers.NewErrInvalidParameter("grammar").
 			Wrap(errors.New("no productions found"))
 	}
 
@@ -132,7 +130,7 @@ func (p *Parser) SetInputStream(inputStream []gr.LeafToken) error {
 	if p.inputStream[len(p.inputStream)-1].ID != "EOF" {
 		tok := gr.NewLeafToken("EOF", "", len(p.inputStream))
 
-		p.inputStream = append(p.inputStream, *tok)
+		p.inputStream = append(p.inputStream, tok)
 		p.inputSize++
 	}
 
@@ -267,7 +265,8 @@ func (p *Parser) reduce(rule int) error {
 	}
 
 	data := p.stack.GetExtracted()
-	p.stack.Push(gr.NewNonLeafToken(lhs, 0, data...))
+	tok := gr.NewNonLeafToken(lhs, 0, data...)
+	p.stack.Push(&tok)
 
 	return nil
 }

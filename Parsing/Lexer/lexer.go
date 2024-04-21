@@ -130,10 +130,8 @@ func (l *Lexer) Lex(b []byte) error {
 		return errors.New("no tokens to parse")
 	}
 
-	l.root = nd.NewNode(helperToken{
-		Status: TkIncomplete,
-		Tok:    gr.NewLeafToken("root", "", -1),
-	})
+	tok := gr.NewLeafToken("root", "", -1)
+	l.root = nd.NewNode(newHelperToken(&tok))
 
 	matches := l.grammar.Match(0, b)
 	if len(matches) == 0 {

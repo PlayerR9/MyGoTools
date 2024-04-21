@@ -40,6 +40,22 @@ type helperToken struct {
 	Tok *gr.LeafToken
 }
 
+// newHelperToken creates a new helperToken
+//
+// Parameters:
+//
+//   - tok: The *LeafToken to wrap.
+//
+// Returns:
+//
+//   - helperToken: The new helperToken.
+func newHelperToken(tok *gr.LeafToken) helperToken {
+	return helperToken{
+		Status: TkIncomplete,
+		Tok:    tok,
+	}
+}
+
 // SetStatus sets the status of the token
 //
 // Parameters:
