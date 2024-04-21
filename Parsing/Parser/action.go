@@ -3,7 +3,7 @@ package Parser
 import (
 	"fmt"
 
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 )
 
 // ActionType represents the type of action that the parser will take.
@@ -50,8 +50,10 @@ func NewShiftAction() Action {
 //   - Action: The new reduce action.
 func NewReduceAction(ruleIndex int) Action {
 	if ruleIndex < 0 {
-		reason := ers.NewErrInvalidParameter("ruleIndex").
-			Wrap(fmt.Errorf("value (%d) must be greater than or equal to 0", ruleIndex))
+		reason := ers.NewErrInvalidParameter(
+			"ruleIndex",
+			fmt.Errorf("value (%d) must be greater than or equal to 0", ruleIndex),
+		)
 
 		return Action{
 			Type: ActError,

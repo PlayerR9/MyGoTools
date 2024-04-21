@@ -7,7 +7,7 @@ import (
 	"time"
 
 	rws "github.com/PlayerR9/MyGoLib/CustomData/Safe/RWSafe"
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 	"github.com/gdamore/tcell"
 )
 
@@ -53,8 +53,10 @@ type Display struct {
 //   - error: An error if the display could not be created.
 func NewDisplay(frameRate float64) (*Display, error) {
 	if frameRate <= 0 {
-		return nil, ers.NewErrInvalidParameter("frameRate").
-			Wrap(errors.New("value must be greater than 0"))
+		return nil, ers.NewErrInvalidParameter(
+			"frameRate",
+			errors.New("value must be greater than 0"),
+		)
 	}
 
 	d := &Display{

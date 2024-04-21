@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 )
 
 const (
@@ -27,8 +27,10 @@ const (
 //   - error: An error if the section is not formatted correctly.
 func ExtractSectionAt(lines []string, at int) (string, int, error) {
 	if at >= len(lines) {
-		return "", at, ers.NewErrInvalidParameter("at").
-			Wrap(ers.NewErrOutOfBound(at, 0, len(lines)))
+		return "", at, ers.NewErrInvalidParameter(
+			"at",
+			ers.NewErrOutOfBounds(at, 0, len(lines)),
+		)
 	}
 
 	if !strings.HasPrefix(lines[at], SectionStyling) {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 )
 
 const (
@@ -82,11 +82,15 @@ func ExtractCodeBlockAt(lines []string, at int) (CodeBlock, int, error) {
 	}
 
 	if at >= len(lines) {
-		return cb, at, ers.NewErrInvalidParameter("at").
-			Wrap(ers.NewErrOutOfBound(at, 0, len(lines)))
+		return cb, at, ers.NewErrInvalidParameter(
+			"at",
+			ers.NewErrOutOfBounds(at, 0, len(lines)),
+		)
 	} else if len(lines) < 2 {
-		return cb, at, ers.NewErrInvalidParameter("lines").
-			Wrap(errors.New("not enough lines to extract code block"))
+		return cb, at, ers.NewErrInvalidParameter(
+			"lines",
+			errors.New("not enough lines to extract code block"),
+		)
 	}
 
 	if !strings.HasPrefix(lines[at], CodeBlockLimiter) {

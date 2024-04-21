@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	ds "github.com/PlayerR9/MyGoLib/CustomData/DoubleLL"
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
 	gr "github.com/PlayerR9/MyGoLib/Utility/Grammar"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
+	ds "github.com/PlayerR9/MyGoLists/DoubleLL"
 )
 
 // DecisionFunc is a function that is used to determine the next action to take
@@ -74,8 +74,10 @@ func NewParser(grammar *gr.Grammar) (Parser, error) {
 	}
 
 	if len(p.productions) == 0 {
-		return p, ers.NewErrInvalidParameter("grammar").
-			Wrap(errors.New("no productions found"))
+		return p, ers.NewErrInvalidParameter(
+			"grammar",
+			errors.New("no productions found"),
+		)
 	}
 
 	return p, nil
@@ -119,8 +121,10 @@ func (p *Parser) SetDecisionFunc(decisionFunc DecisionFunc) error {
 //   - error: An error if the input stream could not be set.
 func (p *Parser) SetInputStream(inputStream []gr.LeafToken) error {
 	if len(inputStream) == 0 {
-		return ers.NewErrInvalidParameter("inputStream").
-			Wrap(errors.New("value is empty"))
+		return ers.NewErrInvalidParameter(
+			"inputStream",
+			errors.New("value is empty"),
+		)
 	}
 
 	p.inputStream = inputStream

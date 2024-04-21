@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 )
 
 // TableAllignmentType represents the type of alignment that a table can have.
@@ -160,9 +160,11 @@ func (t *Table) AddRow(elements []string) error {
 		return nil
 	}
 
-	return ers.NewErrInvalidParameter("elements").
-		Wrap(fmt.Errorf("number of elements (%d) does not match number of headers (%d)",
-			len(elements), len(t.headers)))
+	return ers.NewErrInvalidParameter(
+		"elements",
+		fmt.Errorf("number of elements (%d) does not match number of headers (%d)",
+			len(elements), len(t.headers)),
+	)
 }
 
 // rowToString converts a row to a string.

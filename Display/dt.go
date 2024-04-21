@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 	"github.com/gdamore/tcell"
 )
 
@@ -53,11 +53,15 @@ type DrawTable struct {
 //   - error: An error if the table could not be created.
 func NewDrawTable(width, height int, defaultStyle tcell.Style) (*DrawTable, error) {
 	if width < 0 {
-		return nil, ers.NewErrInvalidParameter("width").
-			Wrap(errors.New("value must be greater than or equal to 0"))
+		return nil, ers.NewErrInvalidParameter(
+			"width",
+			errors.New("value must be greater than or equal to 0"),
+		)
 	} else if height < 0 {
-		return nil, ers.NewErrInvalidParameter("height").
-			Wrap(errors.New("value must be greater than or equal to 0"))
+		return nil, ers.NewErrInvalidParameter(
+			"height",
+			errors.New("value must be greater than or equal to 0"),
+		)
 	}
 
 	dt := &DrawTable{
@@ -94,11 +98,15 @@ func NewDrawTable(width, height int, defaultStyle tcell.Style) (*DrawTable, erro
 //   - error: An error if the style could not be retrieved.
 func (dt *DrawTable) WriteAt(x, y int, value *DtCell) error {
 	if x < 0 || x >= dt.width {
-		return ers.NewErrInvalidParameter("x").
-			Wrap(ers.NewErrOutOfBound(x, 0, dt.width))
+		return ers.NewErrInvalidParameter(
+			"x",
+			ers.NewErrOutOfBounds(x, 0, dt.width),
+		)
 	} else if y < 0 || y >= dt.height {
-		return ers.NewErrInvalidParameter("y").
-			Wrap(ers.NewErrOutOfBound(y, 0, dt.height))
+		return ers.NewErrInvalidParameter(
+			"y",
+			ers.NewErrOutOfBounds(y, 0, dt.height),
+		)
 	}
 
 	dt.mu.Lock()
@@ -129,8 +137,10 @@ func (dt *DrawTable) ResizeWidth(width int) error {
 	if width == dt.width {
 		return nil
 	} else if width < 0 {
-		return ers.NewErrInvalidParameter("width").
-			Wrap(errors.New("value must be greater than or equal to 0"))
+		return ers.NewErrInvalidParameter(
+			"width",
+			errors.New("value must be greater than or equal to 0"),
+		)
 	}
 
 	dt.mu.Lock()
@@ -169,8 +179,10 @@ func (dt *DrawTable) ResizeHeight(height int) error {
 	if height == dt.height {
 		return nil
 	} else if height < 0 {
-		return ers.NewErrInvalidParameter("height").
-			Wrap(errors.New("value must be greater than or equal to 0"))
+		return ers.NewErrInvalidParameter(
+			"height",
+			errors.New("value must be greater than or equal to 0"),
+		)
 	}
 
 	dt.mu.Lock()

@@ -8,8 +8,8 @@ import (
 	gr "github.com/PlayerR9/MyGoLib/Utility/Grammar"
 
 	nd "github.com/PlayerR9/MyGoLib/CustomData/Node"
-	ers "github.com/PlayerR9/MyGoLib/Utility/Errors"
 	slext "github.com/PlayerR9/MyGoLib/Utility/SliceExt"
+	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
 )
 
 // Lexer is a lexer that uses a grammar to tokenize a string
