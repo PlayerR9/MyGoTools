@@ -7,8 +7,6 @@ require (
 	github.com/gdamore/tcell v1.4.0
 )
 
-require github.com/PlayerR9/MyGoLists v0.1.0
-
 require (
 	github.com/PlayerR9/MyGoLibUnits v0.1.0
 	github.com/gdamore/encoding v1.0.1 // indirect
