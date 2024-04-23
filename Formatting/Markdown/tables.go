@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	ers "github.com/PlayerR9/MyGoLibUnits/Errors"
+	ers "github.com/PlayerR9/MyGoLib/Units/Errors"
 )
 
 // TableAllignmentType represents the type of alignment that a table can have.
