@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	rws "github.com/PlayerR9/MyGoLib/CustomData/Safe/RWSafe"
+	rws "github.com/PlayerR9/MyGoLib/Safe/RWSafe"
 	ers "github.com/PlayerR9/MyGoLib/Units/Errors"
 	"github.com/gdamore/tcell"
 )
